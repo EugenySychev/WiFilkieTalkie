@@ -6,6 +6,7 @@ public class UserItem {
     private String mUserName;
     private InetAddress mUserAddress;
     private int mNotReceivedCount;
+    private boolean mIsOnline;
 
     public String getUserName() {
         return mUserName;
@@ -23,11 +24,19 @@ public class UserItem {
         this.mUserAddress = userAddress;
     }
 
-    public int getmNotReceivedCount() {
+    public int getNotReceivedCount() {
         return mNotReceivedCount;
     }
 
-    public void setmNotReceivedCount(int mNotReceivedCount) {
-        this.mNotReceivedCount = mNotReceivedCount;
+    public void setNotReceivedCount(int notReceivedCount) {
+        this.mNotReceivedCount = notReceivedCount;
+    }
+
+    public boolean isOnline() {
+        return mIsOnline;
+    }
+
+    public void setOnline(boolean mIsOnline) {
+        this.mIsOnline = mIsOnline;
     }
 }
