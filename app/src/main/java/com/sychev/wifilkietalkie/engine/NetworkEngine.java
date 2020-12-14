@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 
+import com.sychev.wifilkietalkie.Constants;
 import com.sychev.wifilkietalkie.data.UserItem;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler {
+public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, NetworkHeartbeat.HeartBeatHandler {
 
     @SuppressLint("StaticFieldLeak")
     private static NetworkEngine mInstance = null;
@@ -21,7 +22,16 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler {
 
     private NetworkHeartbeat checkSender;
     private NetworkHeartBeatReceiver checkReceiver;
-    private List<UserItem> mUsersList = new ArrayList<>();
+    private final List<UserItem> mUsersList = new ArrayList<>();
+    private NetworkHeartbeatHandler mBeatHandler;
+
+    public interface NetworkHeartbeatHandler {
+        void beatHandle();
+    }
+
+    public void setBeatHandler(NetworkHeartbeatHandler handler) {
+        mBeatHandler = handler;
+    }
 
     public boolean isReady() {
         return mContext != null;
@@ -89,6 +99,21 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler {
 
     @Override
     public void receivedName(String name) {
+        for (UserItem item : mUsersList) {
+            if (item.getUserName().equals(name))
+                item.resetNotReceivedCounter();
+        }
+    }
+
+    @Override
+    public void heartBeat() {
+        for (UserItem item : mUsersList) {
+            item.setOnline(item.getNotReceivedCount() < Constants.OFFLINE_COUNTER);
+            item.increaseNotReceivedCounter();
+        }
+
+        if (mBeatHandler != null)
+            mBeatHandler.beatHandle();
 
     }
 }

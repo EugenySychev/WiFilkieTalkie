@@ -39,4 +39,12 @@ public class UserItem {
     public void setOnline(boolean mIsOnline) {
         this.mIsOnline = mIsOnline;
     }
+
+    public void increaseNotReceivedCounter() {
+        mNotReceivedCount++;
+    }
+
+    public void resetNotReceivedCounter() {
+        mNotReceivedCount = 0;
+    }
 }

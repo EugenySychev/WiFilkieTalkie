@@ -21,10 +21,15 @@ public class NetworkHeartbeat extends Thread {
     private boolean mEnabled = false;
     private final Context mContext;
     private String mName;
+    private HeartBeatHandler mHandler = null;
 
     public NetworkHeartbeat(Context context, String name) {
         mContext = context;
         mName = name;
+    }
+
+    public void setHeartBeatHandler(HeartBeatHandler handler) {
+        mHandler = handler;
     }
 
     public void setEnabled(boolean enabled)
@@ -36,6 +41,10 @@ public class NetworkHeartbeat extends Thread {
         mEnabled = enabled;
     }
 
+    public interface HeartBeatHandler {
+        void heartBeat();
+    }
+
     public void setUserName(String name) {
         mName = name;
     }
@@ -45,6 +54,8 @@ public class NetworkHeartbeat extends Thread {
 
         while (mEnabled) {
             sendCheckData();
+            if (mHandler != null)
+                mHandler.heartBeat();
 
             try {
                 Thread.sleep(Constants.HEARTBEAT_TIMEOUT);
