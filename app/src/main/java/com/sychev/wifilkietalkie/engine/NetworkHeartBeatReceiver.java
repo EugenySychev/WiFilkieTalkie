@@ -18,14 +18,17 @@ import java.util.List;
 public class NetworkHeartBeatReceiver extends Thread {
 
     private static final String TAG = "NetHBReceiver";
-    private boolean mRunning = false;
+    private boolean mEnabled = false;
+    private UserHBHandler mHandler;
 
-    public NetworkHeartBeatReceiver() {
 
+    public interface UserHBHandler {
+        void receivedName(String name);
     }
 
+
     public void begin() {
-        mRunning = true;
+        mEnabled = true;
         start();
     }
 
@@ -35,9 +38,9 @@ public class NetworkHeartBeatReceiver extends Thread {
 
         try {
             InetAddress myHostAddr = InetAddress.getByName("0.0.0.0");
-            serverSocketUDP  = new DatagramSocket(null);
+            serverSocketUDP = new DatagramSocket(null);
             serverSocketUDP.setReuseAddress(true);
-            serverSocketUDP.bind(new InetSocketAddress("0.0.0.0",Constants.HEARTBEAT_PORT));
+            serverSocketUDP.bind(new InetSocketAddress("0.0.0.0", Constants.HEARTBEAT_PORT));
             serverSocketUDP.setBroadcast(true);
         } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
@@ -45,7 +48,7 @@ public class NetworkHeartBeatReceiver extends Thread {
         final byte[] receiveData = new byte[1024];
 
 
-        while (mRunning) {
+        while (mEnabled) {
             Log.d(TAG, "Waiting for Broadcast request in ServerUDP.");
 
             final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -62,8 +65,8 @@ public class NetworkHeartBeatReceiver extends Thread {
             try {
 //                if (!receivePacket.getAddress().getHostAddress().equals(NetworkEngine.getInstance().getLocalIpAddress())) {
                 Log.d(TAG, "Local ip is " + NetworkEngine.getInstance().getLocalIpAddress().getHostAddress());
-                    String req = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
+                String req = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
 //                }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -75,5 +78,9 @@ public class NetworkHeartBeatReceiver extends Thread {
 
     public List<UserItem> getReceivedList() {
         return new ArrayList<>();
+    }
+
+    public void end() {
+        mEnabled = false;
     }
 }

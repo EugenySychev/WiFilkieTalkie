@@ -19,14 +19,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         NetworkEngine.getInstance().init(this);
+        NetworkEngine.getInstance().setupName("Jonie");
+        NetworkEngine.getInstance().setOnline(true);
 
-        NetworkHeartBeatReceiver heartBeatReceiver = new NetworkHeartBeatReceiver();
-        NetworkHeartbeat heartbeat = new NetworkHeartbeat(this, "Johny");
-
-//        heartbeat.setEnabled(true);
-
-        Log.d(TAG, "Thread is " + heartbeat.getState());
-        heartbeat.begin();
-        heartBeatReceiver.begin();
     }
 }

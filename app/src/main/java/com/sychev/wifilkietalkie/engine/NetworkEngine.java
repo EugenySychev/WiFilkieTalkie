@@ -10,9 +10,10 @@ import com.sychev.wifilkietalkie.data.UserItem;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class NetworkEngine {
+public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler {
 
     @SuppressLint("StaticFieldLeak")
     private static NetworkEngine mInstance = null;
@@ -20,6 +21,7 @@ public class NetworkEngine {
 
     private NetworkHeartbeat checkSender;
     private NetworkHeartBeatReceiver checkReceiver;
+    private List<UserItem> mUsersList = new ArrayList<>();
 
     public boolean isReady() {
         return mContext != null;
@@ -31,7 +33,8 @@ public class NetworkEngine {
         return mInstance;
     }
 
-    NetworkEngine() {}
+    NetworkEngine() {
+    }
 
     public void init(Context context) {
         mContext = context;
@@ -43,15 +46,24 @@ public class NetworkEngine {
         checkSender.setUserName(name);
     }
 
+    public void setOnline(boolean online) {
+        if (online) {
+            checkSender.begin();
+            checkReceiver.begin();
+        } else {
+            checkSender.end();
+            checkReceiver.end();
+        }
+    }
+
     public List<UserItem> getUserList() {
-        return checkReceiver.getReceivedList();
+        return mUsersList;
     }
 
     public InetAddress getLocalIpAddress() throws UnknownHostException {
         WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-        byte[] quads = new byte[] {127, 0, 0, 1} ;
-        if (wifi != null)
-        {
+        byte[] quads = new byte[]{127, 0, 0, 1};
+        if (wifi != null) {
             DhcpInfo dhcp = wifi.getDhcpInfo();
             if (dhcp != null) {
                 for (int k = 0; k < 4; k++)
@@ -63,9 +75,8 @@ public class NetworkEngine {
 
     InetAddress getBroadcastAddress() throws IOException {
         WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-        byte[] quads = new byte[] {-1, -1, -1, -1} ;
-        if (wifi != null)
-        {
+        byte[] quads = new byte[]{-1, -1, -1, -1};
+        if (wifi != null) {
             DhcpInfo dhcp = wifi.getDhcpInfo();
             if (dhcp != null) {
                 int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
@@ -76,4 +87,8 @@ public class NetworkEngine {
         return InetAddress.getByAddress(quads);
     }
 
+    @Override
+    public void receivedName(String name) {
+
+    }
 }

@@ -82,4 +82,8 @@ public class NetworkHeartbeat extends Thread {
         mEnabled = true;
         start();
     }
+
+    public void end() {
+        mEnabled = false;
+    }
 }
