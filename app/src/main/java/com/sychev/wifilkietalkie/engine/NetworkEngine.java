@@ -83,7 +83,7 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
         return InetAddress.getByAddress(quads);
     }
 
-    InetAddress getBroadcastAddress() throws IOException {
+    public InetAddress getBroadcastAddress() throws IOException {
         WifiManager wifi = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         byte[] quads = new byte[]{-1, -1, -1, -1};
         if (wifi != null) {
@@ -98,11 +98,18 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     }
 
     @Override
-    public void receivedName(String name) {
+    public void receivedUser(UserItem receivedItem) {
+        boolean isInList = false;
         for (UserItem item : mUsersList) {
-            if (item.getUserName().equals(name))
+            if (item.getUserName().equals(item.getUserName())) {
                 item.resetNotReceivedCounter();
+                isInList = true;
+                break;
+            }
         }
+        if (!isInList)
+            mUsersList.add(receivedItem);
+
     }
 
     @Override
