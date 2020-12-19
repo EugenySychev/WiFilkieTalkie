@@ -67,13 +67,14 @@ public class NetworkHeartBeatReceiver extends Thread {
                     Log.d(TAG, "Local ip is " + NetworkEngine.getInstance().getLocalIpAddress().getHostAddress());
                     String req = new String(receivePacket.getData(), 0, receivePacket.getLength());
                     Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
+                    if (req.contains(" is online")) {
+                        UserItem item = new UserItem();
+                        item.setUserAddress(receivePacket.getAddress());
+                        item.setUserName(req.replaceAll(" is online", ""));
 
-                    UserItem item = new UserItem();
-                    item.setUserAddress(receivePacket.getAddress());
-                    item.setUserName(req.replaceAll(" is online", ""));
-
-                    if (mHandler != null)
-                        mHandler.receivedUser(item);
+                        if (mHandler != null)
+                            mHandler.receivedUser(item);
+                    }
 
                 }
             } catch (UnknownHostException e) {
