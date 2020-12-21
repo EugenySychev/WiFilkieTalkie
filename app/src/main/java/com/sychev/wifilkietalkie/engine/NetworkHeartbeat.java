@@ -19,12 +19,10 @@ public class NetworkHeartbeat extends Thread {
     private static final String TAG = "NwHeartBeat";
 
     private boolean mEnabled = false;
-    private final Context mContext;
     private String mName;
     private HeartBeatHandler mHandler = null;
 
-    public NetworkHeartbeat(Context context, String name) {
-        mContext = context;
+    public NetworkHeartbeat(String name) {
         mName = name;
     }
 

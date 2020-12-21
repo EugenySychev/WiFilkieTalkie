@@ -34,7 +34,7 @@ public class AudioEngine {
 
         mPlayer = new AudioTrack.Builder()
                 .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build())
                 .setAudioFormat(new AudioFormat.Builder()
@@ -52,15 +52,16 @@ public class AudioEngine {
             public void run() {
 
                 Log.d(TAG, "AudioRecord recording...");
-                mRecorder.startRecording();
+                if (mRecorder != null) {
+                    mRecorder.startRecording();
 
-                while (mIsRecording) {
-                    byte[] buffer = new byte[BUFFER_SIZE];
-                    int read = mRecorder.read(buffer, 0, buffer.length);
-                    if (mDataHandler != null)
-                        mDataHandler.sendData(buffer, read);
+                    while (mIsRecording) {
+                        byte[] buffer = new byte[BUFFER_SIZE];
+                        int read = mRecorder.read(buffer, 0, buffer.length);
+                        if (mDataHandler != null)
+                            mDataHandler.sendData(buffer, read);
+                    }
                 }
-                ;
 
             }
         });
@@ -73,15 +74,16 @@ public class AudioEngine {
         mRecorder.release();
     }
 
-    public void playData(byte[] buffer, int size) {
+    public void startPlayer() {
         mPlayer.play();
-        mPlayer.write(buffer, 0, size);
-        try {
-            mPlayer.wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    }
+
+    public void stopPlayer() {
         mPlayer.stop();
+    }
+
+    public void playData(byte[] buffer, int size) {
+        mPlayer.write(buffer, 0, size);
     }
 
 }

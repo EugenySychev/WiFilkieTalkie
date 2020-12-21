@@ -14,23 +14,31 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, NetworkHeartbeat.HeartBeatHandler {
+public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, NetworkHeartbeat.HeartBeatHandler, NetworkStreamer.DataStreamHandler {
 
     @SuppressLint("StaticFieldLeak")
     private static NetworkEngine mInstance = null;
     private Context mContext = null;
 
-    private NetworkHeartbeat checkSender;
-    private NetworkHeartBeatReceiver checkReceiver;
+    private final NetworkHeartbeat checkSender;
+    private final NetworkHeartBeatReceiver checkReceiver;
     private final List<UserItem> mUsersList = new ArrayList<>();
-    private NetworkHeartbeatHandler mBeatHandler;
+    private NetworkHandler mHandler;
+    private NetworkStreamer mStreamer = null;
 
-    public interface NetworkHeartbeatHandler {
-        void beatHandle();
+    @Override
+    public void receivedData(InetAddress from, byte[] data, int size) {
+        if (mHandler != null)
+            mHandler.receivedStreamData(from, data, size);
     }
 
-    public void setBeatHandler(NetworkHeartbeatHandler handler) {
-        mBeatHandler = handler;
+    public interface NetworkHandler {
+        void beatHandle();
+        void receivedStreamData(InetAddress from, byte[] data, int length);
+    }
+
+    public void setNetworkHandler(NetworkHandler handler) {
+        mHandler = handler;
     }
 
     public boolean isReady() {
@@ -44,12 +52,13 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     }
 
     NetworkEngine() {
+        checkReceiver = new NetworkHeartBeatReceiver();
+        checkSender = new NetworkHeartbeat(null);
+        mStreamer = new NetworkStreamer(Constants.STREAM_PORT, Constants.STREAM_BUFFER_SIZE, this);
     }
 
     public void init(Context context) {
         mContext = context;
-        checkReceiver = new NetworkHeartBeatReceiver();
-        checkSender = new NetworkHeartbeat(mContext, null);
     }
 
     public void setupName(String name) {
@@ -119,8 +128,13 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
             item.increaseNotReceivedCounter();
         }
 
-        if (mBeatHandler != null)
-            mBeatHandler.beatHandle();
+        if (mHandler != null)
+            mHandler.beatHandle();
+    }
 
+    public void sendAudioData(InetAddress to, byte[] data, int size) {
+        if (mStreamer != null) {
+            mStreamer.sendData(data, size, to);
+        }
     }
 }
