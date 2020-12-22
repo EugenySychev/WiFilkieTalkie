@@ -14,7 +14,7 @@ public class AudioEngine {
     private AudioRecord mRecorder = null;
     private AudioTrack mPlayer = null;
 
-    private static final int RECORDING_RATE = 44100;
+    private static final int RECORDING_RATE = 8000;
     private static final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
     private static final int FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(
@@ -44,6 +44,8 @@ public class AudioEngine {
                         .build())
                 .setBufferSizeInBytes(BUFFER_SIZE)
                 .build();
+        mPlayer.play();
+
     }
 
     public void startStreaming() {

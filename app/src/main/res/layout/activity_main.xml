@@ -1,28 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_gravity="center"
+    android:padding="@dimen/main_activity_padding"
     tools:context=".MainActivity">
 
-    <TextView
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/nameEdit"
+        android:layout_centerInParent="true"
+        android:hint="@string/enter_your_name"/>
+    <androidx.appcompat.widget.AppCompatButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ipTextView"
-        android:layout_gravity="center_horizontal"
-        android:text="not received yet" />
+        android:id="@+id/startButton"
+        android:layout_below="@+id/nameEdit"
+        android:layout_centerHorizontal="true"
+        android:text="@string/start" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/broadIpTextView"
-        android:text="not received yet" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/userList" />
-
-</androidx.appcompat.widget.LinearLayoutCompat>
+</RelativeLayout>
