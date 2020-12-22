@@ -22,6 +22,7 @@ import com.sychev.wifilkietalkie.engine.NetworkEngine;
 import com.sychev.wifilkietalkie.engine.NetworkHeartBeatReceiver;
 import com.sychev.wifilkietalkie.engine.NetworkHeartbeat;
 import com.sychev.wifilkietalkie.view.TalkieActivity;
+import com.sychev.wifilkietalkie.view.UserListActivity;
 
 import org.w3c.dom.Text;
 
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AudioEngine.DataH
         setContentView(R.layout.activity_main);
 
         SettingStore.getInstance().init(this);
+        NetworkEngine.getInstance().init(this);
 
         EditText nameEdit = findViewById(R.id.nameEdit);
         nameEdit.setText(SettingStore.getInstance().getName());
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements AudioEngine.DataH
             @Override
             public void onClick(View v) {
                 SettingStore.getInstance().setUserName(nameEdit.getText().toString());
-                Intent intent = new Intent(MainActivity.this, TalkieActivity.class);
+                Intent intent = new Intent(MainActivity.this, UserListActivity.class);
                 startActivity(intent);
             }
         });
