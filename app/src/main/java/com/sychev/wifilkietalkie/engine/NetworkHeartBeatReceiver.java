@@ -26,6 +26,9 @@ public class NetworkHeartBeatReceiver extends Thread {
         void receivedUser(UserItem item);
     }
 
+    public void setHandler(UserHBHandler handler) {
+        mHandler = handler;
+    }
 
     public void begin() {
         mEnabled = true;
@@ -63,7 +66,7 @@ public class NetworkHeartBeatReceiver extends Thread {
             InetAddress address = receivePacket.getAddress();
             int port = receivePacket.getPort();
             try {
-                if (!receivePacket.getAddress().getHostAddress().equals(NetworkEngine.getInstance().getLocalIpAddress())) {
+//                if (!receivePacket.getAddress().getHostAddress().equals(NetworkEngine.getInstance().getLocalIpAddress())) {
                     Log.d(TAG, "Local ip is " + NetworkEngine.getInstance().getLocalIpAddress().getHostAddress());
                     String req = new String(receivePacket.getData(), 0, receivePacket.getLength());
                     Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
@@ -76,7 +79,7 @@ public class NetworkHeartBeatReceiver extends Thread {
                             mHandler.receivedUser(item);
                     }
 
-                }
+//                }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }

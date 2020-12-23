@@ -4,9 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.sychev.wifilkietalkie.Constants;
 import com.sychev.wifilkietalkie.data.UserItem;
+import com.sychev.wifilkietalkie.view.UserListActivity;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,12 +31,20 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     private final List<UserItem> mUsersList = new ArrayList<>();
     private NetworkHandler mHandler;
     private NetworkStreamer mStreamer = null;
+    private String TAG = "NetworkEngine";
+    private Handler mUiHandler;
+
 
     @Override
     public void receivedData(InetAddress from, byte[] data, int size) {
         if (mHandler != null)
             mHandler.receivedStreamData(from, data, size);
     }
+
+    public void setUiHandler(Handler handler) {
+        mUiHandler = handler;
+    }
+
 
     public interface NetworkHandler {
         void beatHandle();
@@ -53,7 +67,9 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
 
     NetworkEngine() {
         checkReceiver = new NetworkHeartBeatReceiver();
+        checkReceiver.setHandler(this);
         checkSender = new NetworkHeartbeat(null);
+        checkSender.setHeartBeatHandler(this);
         mStreamer = new NetworkStreamer(Constants.STREAM_PORT, Constants.STREAM_BUFFER_SIZE, this);
     }
 
@@ -124,12 +140,16 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     @Override
     public void heartBeat() {
         for (UserItem item : mUsersList) {
+            Log.d(TAG, "Check " + item.getUserName() + " not received count " + item.getNotReceivedCount());
             item.setOnline(item.getNotReceivedCount() < Constants.OFFLINE_COUNTER);
             item.increaseNotReceivedCounter();
         }
 
-        if (mHandler != null)
-            mHandler.beatHandle();
+        if (mUiHandler != null) {
+            Message msg = mUiHandler.obtainMessage();
+            msg.what = Constants.UPDATE_USER_STATE;
+            mUiHandler.sendMessage(msg);
+        }
     }
 
     public void sendAudioData(InetAddress to, byte[] data, int size) {
