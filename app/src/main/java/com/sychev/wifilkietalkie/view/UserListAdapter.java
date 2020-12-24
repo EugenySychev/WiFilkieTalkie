@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,8 +41,12 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull @org.jetbrains.annotations.NotNull UserListAdapter.ViewHolder holder, int position) {
-        holder.setTitle(mList.get(position).getUserName());
-        holder.setOnlineState(mList.get(position).isOnline());
+        UserItem item = mList.get(position);
+        if (item != null) {
+            holder.setTitle(item.getUserName());
+            holder.setOnlineState(item.isOnline());
+            holder.setActionIcon(item.getActionState());
+        }
     }
 
     @Override
@@ -60,11 +65,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final TextView mTitleView;
+        private final ImageView mImageView;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             mTitleView = itemView.findViewById(R.id.contact_title_view);
-            mTitleView.setOnClickListener(this);
+            mImageView = itemView.findViewById(R.id.contact_action_icon);
+            itemView.setOnClickListener(this);
         }
 
         public void setTitle(String name) {
@@ -80,6 +87,29 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         public void setOnlineState(boolean online) {
             mTitleView.setTypeface(null, online ? Typeface.BOLD : Typeface.ITALIC);
             mTitleView.setTextColor(online ? Color.BLACK : Color.LTGRAY);
+        }
+
+        public void setActionIcon(UserItem.ActionState actionState) {
+            int sourceIcon = 0;
+            if (mImageView == null || actionState == null)
+                return;
+            switch (actionState) {
+                case LISTEN:
+                    sourceIcon = R.drawable.ic_baseline_record_voice_over_24;
+                    break;
+                case TALK:
+                    sourceIcon = R.drawable.ic_baseline_mic_24;
+                    break;
+                default:
+                    sourceIcon = 0;
+            }
+
+            if (sourceIcon == 0)
+                mImageView.setVisibility(View.GONE);
+            else {
+                mImageView.setVisibility(View.VISIBLE);
+                mImageView.setImageResource(sourceIcon);
+            }
         }
     }
 

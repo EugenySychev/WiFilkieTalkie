@@ -83,11 +83,18 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     private void pushUser(int index, boolean pttState) {
         Log.d(TAG, "Send is " + pttState);
+        UserItem item = mUserList.get(index);
+        if (item != null)
+        {
+            item.setActionState(pttState ? UserItem.ActionState.TALK : UserItem.ActionState.NONE);
+            mAdapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        UserItem item = mUserList.get(position);
+
     }
 
     @Override

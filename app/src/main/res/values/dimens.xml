@@ -2,4 +2,6 @@
 <resources>
     <dimen name="main_activity_padding">40dp</dimen>
     <dimen name="userlist_item_padding">12dp</dimen>
+    <dimen name="talk_icon_size">35dp</dimen>
+    <dimen name="contact_list_font_size">22sp</dimen>
 </resources>

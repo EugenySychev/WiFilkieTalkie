@@ -7,7 +7,13 @@ public class UserItem {
     private InetAddress mUserAddress;
     private int mNotReceivedCount;
     private boolean mIsOnline;
+    private ActionState mActionState;
 
+    public enum ActionState {
+        NONE,
+        TALK,
+        LISTEN
+    }
     public String getUserName() {
         return mUserName;
     }
@@ -47,4 +53,14 @@ public class UserItem {
     public void resetNotReceivedCounter() {
         mNotReceivedCount = 0;
     }
+
+    public ActionState getActionState() {
+        return mActionState;
+    }
+
+    public void setActionState(ActionState actionState) {
+        mActionState = actionState;
+    }
+
+
 }
