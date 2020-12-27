@@ -23,14 +23,12 @@ public class AudioEngine {
     private DataHandler mDataHandler = null;
 
     public interface DataHandler {
-        void sendData(byte[] array, int size);
+        void recordedData(byte[] array, int size);
 
     }
 
     public AudioEngine(DataHandler handler) {
         mDataHandler = handler;
-        mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                RECORDING_RATE, CHANNEL, FORMAT, BUFFER_SIZE * 10);
 
         mPlayer = new AudioTrack.Builder()
                 .setAudioAttributes(new AudioAttributes.Builder()
@@ -53,15 +51,19 @@ public class AudioEngine {
             @Override
             public void run() {
 
-                Log.d(TAG, "AudioRecord recording...");
-                if (mRecorder != null) {
+                if (mRecorder == null)
+                    mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                            RECORDING_RATE, CHANNEL, FORMAT, BUFFER_SIZE * 10);
+
+                if (mRecorder.getState()  == AudioRecord.STATE_INITIALIZED) {
                     mRecorder.startRecording();
+                    Log.d(TAG, "AudioRecord recording...");
 
                     while (mIsRecording) {
                         byte[] buffer = new byte[BUFFER_SIZE];
                         int read = mRecorder.read(buffer, 0, buffer.length);
                         if (mDataHandler != null)
-                            mDataHandler.sendData(buffer, read);
+                            mDataHandler.recordedData(buffer, read);
                     }
                 }
 
@@ -73,7 +75,9 @@ public class AudioEngine {
 
     public void stopStreaming() {
         mIsRecording = false;
-        mRecorder.release();
+        if (mRecorder != null)
+            mRecorder.release();
+            mRecorder = null;
     }
 
     public void startPlayer() {

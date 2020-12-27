@@ -85,9 +85,11 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
         if (online) {
             checkSender.begin();
             checkReceiver.begin();
+            mStreamer.enableReceiver(true);
         } else {
             checkSender.end();
             checkReceiver.end();
+            mStreamer.enableReceiver(false);
         }
     }
 
@@ -140,7 +142,7 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     @Override
     public void heartBeat() {
         for (UserItem item : mUsersList) {
-            Log.d(TAG, "Check " + item.getUserName() + " not received count " + item.getNotReceivedCount());
+//            Log.d(TAG, "Check " + item.getUserName() + " not received count " + item.getNotReceivedCount());
             item.setOnline(item.getNotReceivedCount() < Constants.OFFLINE_COUNTER);
             item.increaseNotReceivedCounter();
         }

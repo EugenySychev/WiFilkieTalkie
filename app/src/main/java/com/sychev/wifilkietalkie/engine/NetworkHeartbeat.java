@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.sychev.wifilkietalkie.Constants;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -81,7 +82,7 @@ public class NetworkHeartbeat extends Thread {
             InetAddress broadcast = NetworkEngine.getInstance().getBroadcastAddress();
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, Constants.HEARTBEAT_PORT);
             socket.send(sendPacket);
-            System.out.println(getClass().getName() + "Broadcast packet sent to: " + broadcast.getHostAddress());
+//            System.out.println(getClass().getName() + "Broadcast packet sent to: " + broadcast.getHostAddress());
         } catch (IOException e) {
             Log.e(TAG, "IOException: " + e.getMessage());
         }

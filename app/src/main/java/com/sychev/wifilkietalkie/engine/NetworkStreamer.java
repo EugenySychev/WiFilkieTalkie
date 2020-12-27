@@ -1,6 +1,7 @@
 package com.sychev.wifilkietalkie.engine;
 
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.sychev.wifilkietalkie.Constants;
 
@@ -13,6 +14,7 @@ import java.net.SocketException;
 
 public class NetworkStreamer extends Thread {
 
+    private static final String TAG = "NetworkStreamer";
     private final int mPort;
     private final int mBufferSize;
     private DataStreamHandler mHandler;
@@ -25,7 +27,7 @@ public class NetworkStreamer extends Thread {
         mBufferSize = bufferSize;
         mHandler = handler;
         try {
-            mTransmitterSocket = new DatagramSocket(null);
+            mTransmitterSocket = new DatagramSocket(new InetSocketAddress(mPort));
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -40,10 +42,20 @@ public class NetworkStreamer extends Thread {
     }
 
     public void sendData(byte[] data, int length, InetAddress to) {
+        Log.d(TAG, "Send by socket " + (mTransmitterSocket != null));
         if (mTransmitterSocket != null) {
-            DatagramPacket sendPacket = new DatagramPacket(data, length, to, mPort);
+            Log.d(TAG, "Prepare data for sending");
+            InetAddress broadcast = null;
+            try {
+                broadcast = NetworkEngine.getInstance().getBroadcastAddress();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            DatagramPacket sendPacket = new DatagramPacket(data, length, broadcast, mPort);
             try {
                 mTransmitterSocket.send(sendPacket);
+                Log.d(TAG, "Send " + sendPacket.getLength());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,17 +74,19 @@ public class NetworkStreamer extends Thread {
     @Override
     public void run() {
         DatagramSocket serverSocketUDP = null;
-        while (mReceiverEnabled) {
-            try {
-                serverSocketUDP = new DatagramSocket(null);
-                serverSocketUDP.setReuseAddress(true);
-                serverSocketUDP.bind(new InetSocketAddress(mPort));
-                serverSocketUDP.setBroadcast(true);
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
-            final byte[] receiveData = new byte[mBufferSize];
+        try {
+            serverSocketUDP = new DatagramSocket(null);
+            serverSocketUDP.setReuseAddress(true);
+            serverSocketUDP.bind(new InetSocketAddress(mPort));
+            serverSocketUDP.setBroadcast(true);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        final byte[] receiveData = new byte[mBufferSize];
+        Log.d(TAG, "Stream receiver started");
 
+        while (mReceiverEnabled && serverSocketUDP != null) {
+            Log.d(TAG, "Received data " + receiveData.length );
             final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             try {

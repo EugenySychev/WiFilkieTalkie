@@ -52,7 +52,7 @@ public class NetworkHeartBeatReceiver extends Thread {
 
 
         while (mEnabled) {
-            Log.d(TAG, "Waiting for Broadcast request in ServerUDP.");
+//            Log.d(TAG, "Waiting for Broadcast request in ServerUDP.");
 
             final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
@@ -65,11 +65,11 @@ public class NetworkHeartBeatReceiver extends Thread {
             byte[] sendData = new byte[1024];
             InetAddress address = receivePacket.getAddress();
             int port = receivePacket.getPort();
-            try {
+//            try {
 //                if (!receivePacket.getAddress().getHostAddress().equals(NetworkEngine.getInstance().getLocalIpAddress())) {
-                    Log.d(TAG, "Local ip is " + NetworkEngine.getInstance().getLocalIpAddress().getHostAddress());
+//                    Log.d(TAG, "Local ip is " + NetworkEngine.getInstance().getLocalIpAddress().getHostAddress());
                     String req = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
+//                    Log.d(TAG, "Received UDP message : " + req + " from: " + receivePacket.getAddress().getHostAddress());
                     if (req.contains(" is online")) {
                         UserItem item = new UserItem();
                         item.setUserAddress(receivePacket.getAddress());
@@ -80,9 +80,9 @@ public class NetworkHeartBeatReceiver extends Thread {
                     }
 
 //                }
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//            }
         }// while ends
 
         super.run();

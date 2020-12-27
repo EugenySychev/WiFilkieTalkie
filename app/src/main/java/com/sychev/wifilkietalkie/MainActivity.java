@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements AudioEngine.DataHandler {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Main";
     private static final int REQUEST_MIC_PEMISSION_ID = 1;
@@ -76,12 +76,4 @@ public class MainActivity extends AppCompatActivity implements AudioEngine.DataH
 
     }
 
-    @Override
-    public void sendData(byte[] array, int size) {
-//        if
-//
-//
-//        if (audioEngine != null)
-//            audioEngine.playData(array, size);
-    }
 }
