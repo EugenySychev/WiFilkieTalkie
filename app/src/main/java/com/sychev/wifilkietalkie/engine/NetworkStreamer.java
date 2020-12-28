@@ -66,6 +66,7 @@ public class NetworkStreamer extends Thread {
         if (mReceiverEnabled && !enable) {
             mReceiverEnabled = false;
         } else if (!mReceiverEnabled && enable) {
+            mReceiverEnabled = true;
             start();
         }
     }
@@ -75,10 +76,10 @@ public class NetworkStreamer extends Thread {
     public void run() {
         DatagramSocket serverSocketUDP = null;
         try {
-            serverSocketUDP = new DatagramSocket(null);
-            serverSocketUDP.setReuseAddress(true);
-            serverSocketUDP.bind(new InetSocketAddress(mPort));
-            serverSocketUDP.setBroadcast(true);
+            serverSocketUDP = new DatagramSocket(new InetSocketAddress(mPort + 1));
+//            serverSocketUDP.setReuseAddress(true);
+//            serverSocketUDP.bind(new InetSocketAddress("0.0.0.0", mPort));
+//            serverSocketUDP.setBroadcast(true);
         } catch (SocketException e) {
             e.printStackTrace();
         }

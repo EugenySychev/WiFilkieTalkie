@@ -144,8 +144,9 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     @Override
     public void recordedData(byte[] array, int size) {
-        Log.d(TAG, "Sending data to ");
         if (mCurrentItem != null && mCurrentItem.getUserAddress() != null) {
+            Log.d(TAG, "Sending data to " + mCurrentItem.getUserAddress().getHostAddress());
+
             Log.d(TAG, mCurrentItem.getUserAddress().getHostName());
             NetworkEngine.getInstance().sendAudioData(mCurrentItem.getUserAddress(),
                     array, size);
