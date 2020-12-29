@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 
 public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler {
@@ -34,7 +35,8 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     private Handler mHandler;
     private AudioEngine mAudioEngine;
 
-    private final ByteArrayOutputStream mReceivedBuffer = new ByteArrayOutputStream(1024* 1024);
+    private final byte[] mReceivedBuffer = new byte[1024 * 1024 * 30];
+    private int mReceivedSize = 0;
     private UserItem mCurrentItem = null;
     private boolean isBusy = false;
 
@@ -106,12 +108,12 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
             }
         }
 
-        if (!pttState && mReceivedBuffer.size() > 0) {
-            Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.size());
+        if (!pttState && mReceivedSize > 0) {
+            Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
             mAudioEngine.startPlayer();
-            mAudioEngine.playData(mReceivedBuffer.toByteArray(), mReceivedBuffer.size());
+            mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
             mAudioEngine.stopPlayer();
-            mReceivedBuffer.reset();
+            mReceivedSize = 0;
         }
 
     }
@@ -128,28 +130,35 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     @Override
     public void receivedStreamData(InetAddress from, byte[] data, int length) {
-        mReceivedBuffer.write(data, mReceivedBuffer.size(), length);
+
+        System.arraycopy(data, 0, mReceivedBuffer,mReceivedSize, length);
+        mReceivedSize += length;
         if (!isBusy) {
-            Log.d(TAG, "Receiver not busy, play data " + mReceivedBuffer.size());
+            Log.d(TAG, "Receiver not busy, play data " + mReceivedBuffer.length);
             mAudioEngine.startPlayer();
-            if (mReceivedBuffer.size() > 0) {
-                mAudioEngine.playData(mReceivedBuffer.toByteArray(), mReceivedBuffer.size());
+            if (mReceivedBuffer.length > 0) {
+                mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
             }
             mAudioEngine.stopPlayer();
-            mReceivedBuffer.reset();
+            mReceivedSize = 0;
         } else {
-            Log.d(TAG, "Receiver busy, write to buffer, size is " + mReceivedBuffer.size());
+            Log.d(TAG, "Receiver busy, write to buffer, size is " + mReceivedBuffer.length);
         }
     }
 
     @Override
     public void recordedData(byte[] array, int size) {
-        if (mCurrentItem != null && mCurrentItem.getUserAddress() != null) {
+        InetAddress address = null;
+        if (mCurrentItem != null)
+            address = mCurrentItem.getUserAddress();
+
+        if (address != null)
+        {
+
             Log.d(TAG, "Sending data to " + mCurrentItem.getUserAddress().getHostAddress());
 
-            Log.d(TAG, mCurrentItem.getUserAddress().getHostName());
-            NetworkEngine.getInstance().sendAudioData(mCurrentItem.getUserAddress(),
-                    array, size);
+            Log.d(TAG, address.getHostName());
+            NetworkEngine.getInstance().sendAudioData(address, array, size);
         }
     }
 }

@@ -11,6 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class NetworkStreamer extends Thread {
 
@@ -52,7 +53,7 @@ public class NetworkStreamer extends Thread {
                 e.printStackTrace();
             }
 
-            DatagramPacket sendPacket = new DatagramPacket(data, length, broadcast, mPort);
+            DatagramPacket sendPacket = new DatagramPacket(data, length, to, mPort + 1);
             try {
                 mTransmitterSocket.send(sendPacket);
                 Log.d(TAG, "Send " + sendPacket.getLength());
