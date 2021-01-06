@@ -1,5 +1,6 @@
 package com.sychev.wifilkietalkie;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
@@ -58,11 +59,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        checkMicPermission();
 
-//        mNetworkEngine = new NetworkEngine(this);
-//
-//        mUserItemList = mNetworkEngine.getUserList();
-//        mAudioEngine = new AudioEngine(this);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(R.string.enter_your_name);
+        }
     }
 
     private void checkMicPermission() {

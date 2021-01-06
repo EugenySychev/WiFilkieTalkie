@@ -67,7 +67,7 @@ public class NetworkHeartbeat extends Thread {
     private void sendCheckData() {
         String mess = mName + " is online";
         sendBroadcast(mess);
-        Log.d(TAG, "Send mess " + mess);
+//        Log.d(TAG, "Send mess " + mess);
     }
 
     public void sendBroadcast(String messageStr) {

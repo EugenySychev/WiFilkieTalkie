@@ -18,7 +18,7 @@
         android:theme="@style/Theme.WiFilkieTalkie">
         <activity android:name=".view.UserListActivity"></activity>
         <activity android:name=".view.TalkieActivity" />
-        <activity android:name=".view.Settings" />
+        <activity android:name=".view.SettingsActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

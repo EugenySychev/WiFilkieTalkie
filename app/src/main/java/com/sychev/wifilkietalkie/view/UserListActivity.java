@@ -1,17 +1,22 @@
 package com.sychev.wifilkietalkie.view;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toolbar;
 
 import com.sychev.wifilkietalkie.Constants;
 import com.sychev.wifilkietalkie.R;
@@ -90,6 +95,32 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         NetworkEngine.getInstance().setUiHandler(mHandler);
 
         mAudioEngine = new AudioEngine(this);
+
+        ActionBar toolbar = getSupportActionBar();
+        if (toolbar != null) {
+            toolbar.setDisplayHomeAsUpEnabled(true);
+        }
+//        toolbar.setDefaultDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.user_list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+        {
+            finish();
+            // TODO: add handle stop exchange
+        } else if (item.getItemId() == R.id.action_settings) {
+            Intent intent = new Intent(UserListActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void pushUser(int index, boolean pttState) {

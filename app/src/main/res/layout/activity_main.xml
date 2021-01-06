@@ -19,7 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/startButton"
-        android:layout_below="@+id/nameEdit"
+        android:layout_margin="@dimen/main_activity_padding"
+        android:layout_above="@+id/nameEdit"
         android:layout_centerHorizontal="true"
         android:text="@string/start" />
 
