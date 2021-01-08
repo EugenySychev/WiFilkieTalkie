@@ -1,11 +1,5 @@
 package com.sychev.wifilkietalkie.view;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.sychev.wifilkietalkie.Constants;
 import com.sychev.wifilkietalkie.R;
@@ -27,9 +26,7 @@ import com.sychev.wifilkietalkie.engine.NetworkEngine;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
-import java.util.Arrays;
 import java.util.List;
 
 public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler {
@@ -111,8 +108,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
-        {
+        if (item.getItemId() == android.R.id.home) {
             finish();
             // TODO: add handle stop exchange
         } else if (item.getItemId() == R.id.action_settings) {
@@ -162,7 +158,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     @Override
     public void receivedStreamData(InetAddress from, byte[] data, int length) {
 
-        System.arraycopy(data, 0, mReceivedBuffer,mReceivedSize, length);
+        System.arraycopy(data, 0, mReceivedBuffer, mReceivedSize, length);
         mReceivedSize += length;
         if (!isBusy) {
             Log.d(TAG, "Receiver not busy, play data " + mReceivedBuffer.length);
@@ -183,8 +179,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         if (mCurrentItem != null)
             address = mCurrentItem.getUserAddress();
 
-        if (address != null)
-        {
+        if (address != null) {
 
             Log.d(TAG, "Sending data to " + mCurrentItem.getUserAddress().getHostAddress());
 

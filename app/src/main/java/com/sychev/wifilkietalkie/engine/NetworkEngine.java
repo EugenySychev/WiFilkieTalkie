@@ -127,15 +127,24 @@ public class NetworkEngine implements NetworkHeartBeatReceiver.UserHBHandler, Ne
     @Override
     public void receivedUser(UserItem receivedItem) {
         boolean isInList = false;
+        Log.d(TAG, "User " + receivedItem.getUserName() + " processing");
+
         for (UserItem item : mUsersList) {
-            if (item.getUserName().equals(item.getUserName())) {
+            if (item.getUserName().equals(receivedItem.getUserName())) {
                 item.resetNotReceivedCounter();
                 isInList = true;
                 break;
             }
         }
-        if (!isInList)
+        if (!isInList) {
+            Log.d(TAG, "User " + receivedItem.getUserName() + " not in list, adding");
             mUsersList.add(receivedItem);
+            if (mUiHandler != null) {
+                Message msg = mUiHandler.obtainMessage();
+                msg.what = Constants.UPDATE_USER_STATE;
+                mUiHandler.sendMessage(msg);
+            }
+        }
 
     }
 
