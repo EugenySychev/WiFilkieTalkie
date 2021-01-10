@@ -27,6 +27,8 @@ import com.sychev.wifilkietalkie.engine.NetworkEngine;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler {
@@ -41,6 +43,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     private int mReceivedSize = 0;
     private UserItem mCurrentItem = null;
     private boolean isBusy = false;
+    private int mCurrentIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,23 +61,36 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
             public boolean onInterceptTouchEvent(@NonNull @NotNull RecyclerView rv, @NonNull @NotNull MotionEvent e) {
                 View childView = rv.findChildViewUnder(e.getX(), e.getY());
                 int index = -1;
-                if (childView != null)
+                if (childView != null) {
                     index = rv.getChildAdapterPosition(childView);
+                }
 
-                if (index >= 0)
-                    pushUser(index, e.getAction() == MotionEvent.ACTION_DOWN);
+                boolean pttState = false;
+                if (index >= 0) {
+                    if (index != mCurrentIndex) {
+                        pushUser(mCurrentIndex, false);
+                        mCurrentIndex = index;
+                    }
 
+                    if (e.getAction() == MotionEvent.ACTION_DOWN ||
+                            e.getAction() == MotionEvent.ACTION_UP) {
+                        pttState = e.getAction() == MotionEvent.ACTION_DOWN;
+                        pushUser(index, pttState);
+                    }
+                } else {
+                    pushUser(mCurrentIndex, false);
+                    mCurrentIndex = index;
+                }
                 return false;
             }
 
             @Override
-            public void onTouchEvent(@NonNull @NotNull RecyclerView rv, @NonNull @NotNull MotionEvent e) {
-
+            public void onTouchEvent(@NonNull @NotNull RecyclerView
+                                             rv, @NonNull @NotNull MotionEvent e) {
             }
 
             @Override
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
             }
         });
         NetworkEngine.getInstance().setupName(SettingStore.getInstance().getName());
@@ -88,7 +104,9 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
                     mAdapter.notifyDataSetChanged();
                 super.handleMessage(msg);
             }
-        };
+        }
+
+        ;
         NetworkEngine.getInstance().setUiHandler(mHandler);
 
         mAudioEngine = new AudioEngine(this);
@@ -97,7 +115,6 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         if (toolbar != null) {
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
-//        toolbar.setDefaultDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -121,28 +138,29 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     private void pushUser(int index, boolean pttState) {
         Log.d(TAG, "Send is " + pttState);
-        UserItem item = mUserList.get(index);
-        if (item != null) {
-            item.setActionState(pttState ? UserItem.ActionState.TALK : UserItem.ActionState.NONE);
-            mAdapter.notifyDataSetChanged();
-            isBusy = pttState;
-            if (pttState) {
-                mCurrentItem = item;
-                mAudioEngine.startStreaming();
-            } else {
-                mCurrentItem = null;
-                mAudioEngine.stopStreaming();
+        if (index >= 0) {
+            UserItem item = mUserList.get(index);
+            if (item != null) {
+                item.setActionState(pttState ? UserItem.ActionState.TALK : UserItem.ActionState.NONE);
+                mAdapter.notifyDataSetChanged();
+                isBusy = pttState;
+                if (pttState) {
+                    mCurrentItem = item;
+                    mAudioEngine.startStreaming();
+                } else {
+                    mCurrentItem = null;
+                    mAudioEngine.stopStreaming();
+                }
+            }
+
+            if (!pttState && mReceivedSize > 0) {
+                Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
+                mAudioEngine.startPlayer();
+                mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
+                mAudioEngine.stopPlayer();
+                mReceivedSize = 0;
             }
         }
-
-        if (!pttState && mReceivedSize > 0) {
-            Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
-            mAudioEngine.startPlayer();
-            mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
-            mAudioEngine.stopPlayer();
-            mReceivedSize = 0;
-        }
-
     }
 
     @Override
