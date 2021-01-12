@@ -8,6 +8,15 @@ public class UserItem {
     private int mNotReceivedCount;
     private boolean mIsOnline;
     private ActionState mActionState;
+    private boolean mIsActive;
+
+    public void setUserActive(boolean isChecked) {
+        mIsActive = isChecked;
+    }
+
+    public boolean isUserActive() {
+        return mIsActive;
+    }
 
     public enum ActionState {
         NONE,

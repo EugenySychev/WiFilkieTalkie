@@ -7,10 +7,12 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sychev.wifilkietalkie.R;
@@ -66,11 +68,20 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
         private final TextView mTitleView;
         private final ImageView mImageView;
+        private final SwitchCompat mSwitch;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             mTitleView = itemView.findViewById(R.id.contact_title_view);
             mImageView = itemView.findViewById(R.id.contact_action_icon);
+            mSwitch = itemView.findViewById(R.id.contact_switch_active);
+            mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (mClickListener != null)
+                        mClickListener.setActive(getAdapterPosition(), isChecked);
+                }
+            });
             itemView.setOnClickListener(this);
         }
 
@@ -115,5 +126,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     public interface ItemClickListener {
         void onItemClick(View view, int position);
+        void setActive(int position, boolean isChecked);
     }
 }

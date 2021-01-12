@@ -6,10 +6,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -31,7 +33,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler {
+public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler{
 
     private static final String TAG = "UserList";
     private List<UserItem> mUserList;
@@ -44,6 +46,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     private UserItem mCurrentItem = null;
     private boolean isBusy = false;
     private int mCurrentIndex = -1;
+    private boolean mVolumePttEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +118,9 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         if (toolbar != null) {
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
+
+        mVolumePttEnabled = true;
+        Log.d(TAG, "Enabled ptt handling");
     }
 
     @Override
@@ -166,6 +172,11 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     @Override
     public void onItemClick(View view, int position) {
 
+    }
+
+    @Override
+    public void setActive(int position, boolean isChecked) {
+        mUserList.get(position).setUserActive(isChecked);
     }
 
     @Override
