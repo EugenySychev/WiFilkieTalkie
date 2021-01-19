@@ -68,20 +68,20 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
         private final TextView mTitleView;
         private final ImageView mImageView;
-        private final SwitchCompat mSwitch;
+//        private final SwitchCompat mSwitch;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             mTitleView = itemView.findViewById(R.id.contact_title_view);
             mImageView = itemView.findViewById(R.id.contact_action_icon);
-            mSwitch = itemView.findViewById(R.id.contact_switch_active);
-            mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (mClickListener != null)
-                        mClickListener.setActive(getAdapterPosition(), isChecked);
-                }
-            });
+//            mSwitch = itemView.findViewById(R.id.contact_switch_active);
+//            mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    if (mClickListener != null)
+//                        mClickListener.setActive(getAdapterPosition(), isChecked);
+//                }
+//            });
             itemView.setOnClickListener(this);
         }
 
@@ -108,9 +108,9 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
                 case LISTEN:
                     sourceIcon = R.drawable.ic_baseline_record_voice_over_24;
                     break;
-                case TALK:
-                    sourceIcon = R.drawable.ic_baseline_mic_24;
-                    break;
+//                case TALK:
+//                    sourceIcon = R.drawable.ic_baseline_mic_24;
+//                    break;
                 default:
                     sourceIcon = 0;
             }

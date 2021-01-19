@@ -14,10 +14,12 @@
         android:layout_weight="200" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_weight="1"
-        android:src="@mipmap/red_button"
+        android:src="@drawable/red_button_selector"
+        android:background="@null"
+        android:scaleType="fitCenter"
         android:layout_gravity="center"
         android:id="@+id/user_list_ptt_button"/>
 

@@ -1,5 +1,6 @@
 package com.sychev.wifilkietalkie.view;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,7 +35,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler{
+public class UserListActivity extends AppCompatActivity implements UserListAdapter.ItemClickListener, NetworkEngine.NetworkHandler, AudioEngine.DataHandler {
 
     private static final String TAG = "UserList";
     private List<UserItem> mUserList;
@@ -59,43 +61,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         mAdapter = new UserListAdapter(mUserList, this);
         mAdapter.setOnClickListener(this);
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(@NonNull @NotNull RecyclerView rv, @NonNull @NotNull MotionEvent e) {
-                View childView = rv.findChildViewUnder(e.getX(), e.getY());
-                int index = -1;
-                if (childView != null) {
-                    index = rv.getChildAdapterPosition(childView);
-                }
 
-                boolean pttState = false;
-                if (index >= 0) {
-                    if (index != mCurrentIndex) {
-                        pushUser(mCurrentIndex, false);
-                        mCurrentIndex = index;
-                    }
-
-                    if (e.getAction() == MotionEvent.ACTION_DOWN ||
-                            e.getAction() == MotionEvent.ACTION_UP) {
-                        pttState = e.getAction() == MotionEvent.ACTION_DOWN;
-                        pushUser(index, pttState);
-                    }
-                } else {
-                    pushUser(mCurrentIndex, false);
-                    mCurrentIndex = index;
-                }
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(@NonNull @NotNull RecyclerView
-                                             rv, @NonNull @NotNull MotionEvent e) {
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            }
-        });
         NetworkEngine.getInstance().setupName(SettingStore.getInstance().getName());
         NetworkEngine.getInstance().setOnline(true);
         NetworkEngine.getInstance().setNetworkHandler(this);
@@ -107,9 +73,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
                     mAdapter.notifyDataSetChanged();
                 super.handleMessage(msg);
             }
-        }
-
-        ;
+        };
         NetworkEngine.getInstance().setUiHandler(mHandler);
 
         mAudioEngine = new AudioEngine(this);
@@ -118,9 +82,23 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         if (toolbar != null) {
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
+        ImageButton ptt = findViewById(R.id.user_list_ptt_button);
 
-        mVolumePttEnabled = true;
-        Log.d(TAG, "Enabled ptt handling");
+
+        ptt.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        break;
+                    case MotionEvent.ACTION_UP:
+
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
@@ -144,28 +122,19 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     private void pushUser(int index, boolean pttState) {
         Log.d(TAG, "Send is " + pttState);
-        if (index >= 0) {
-            UserItem item = mUserList.get(index);
-            if (item != null) {
-                item.setActionState(pttState ? UserItem.ActionState.TALK : UserItem.ActionState.NONE);
-                mAdapter.notifyDataSetChanged();
-                isBusy = pttState;
-                if (pttState) {
-                    mCurrentItem = item;
-                    mAudioEngine.startStreaming();
-                } else {
-                    mCurrentItem = null;
-                    mAudioEngine.stopStreaming();
-                }
-            }
+        isBusy = pttState;
+        if (pttState) {
+            mAudioEngine.startStreaming();
+        } else {
+            mAudioEngine.stopStreaming();
+        }
 
-            if (!pttState && mReceivedSize > 0) {
-                Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
-                mAudioEngine.startPlayer();
-                mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
-                mAudioEngine.stopPlayer();
-                mReceivedSize = 0;
-            }
+        if (!pttState && mReceivedSize > 0) {
+            Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
+            mAudioEngine.startPlayer();
+            mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
+            mAudioEngine.stopPlayer();
+            mReceivedSize = 0;
         }
     }
 
@@ -204,12 +173,9 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
     @Override
     public void recordedData(byte[] array, int size) {
-        InetAddress address = null;
-        if (mCurrentItem != null)
-            address = mCurrentItem.getUserAddress();
+        InetAddress address = NetworkEngine.getInstance().getBroadcastAddress();
 
         if (address != null) {
-
             Log.d(TAG, "Sending data to " + mCurrentItem.getUserAddress().getHostAddress());
 
             Log.d(TAG, address.getHostName());

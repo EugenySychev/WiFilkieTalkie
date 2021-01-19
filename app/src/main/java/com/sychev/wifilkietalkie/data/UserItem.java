@@ -1,8 +1,11 @@
 package com.sychev.wifilkietalkie.data;
 
+import android.util.Log;
+
 import java.net.InetAddress;
 
 public class UserItem {
+    private static final String TAG = "UserItem";
     private String mUserName;
     private InetAddress mUserAddress;
     private int mNotReceivedCount;
@@ -12,6 +15,7 @@ public class UserItem {
 
     public void setUserActive(boolean isChecked) {
         mIsActive = isChecked;
+        Log.d(TAG, "Set item name " + mUserName + " is active " + isChecked);
     }
 
     public boolean isUserActive() {
