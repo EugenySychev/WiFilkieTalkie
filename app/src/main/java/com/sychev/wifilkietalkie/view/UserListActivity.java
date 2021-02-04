@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +31,7 @@ import com.sychev.wifilkietalkie.engine.NetworkEngine;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
     private Handler mHandler;
     private AudioEngine mAudioEngine;
 
-    private final byte[] mReceivedBuffer = new byte[1024 * 1024 * 30];
+    private final byte[] mReceivedBuffer = new byte[1024 * 1024 * 300];
     private int mReceivedSize = 0;
     private UserItem mCurrentItem = null;
     private boolean isBusy = false;
@@ -82,23 +84,19 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         if (toolbar != null) {
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
-        ImageButton ptt = findViewById(R.id.user_list_ptt_button);
-
-
+        AppCompatImageButton ptt = findViewById(R.id.user_list_ptt_button);
         ptt.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
 
-                        break;
-                    case MotionEvent.ACTION_UP:
-
-                        break;
-                }
+                pushUser(event.getAction() == MotionEvent.ACTION_DOWN ? true : false);
+                if (event.getAction() == MotionEvent.ACTION_UP)
+                    ptt.performClick();
                 return false;
             }
         });
+
+
     }
 
     @Override
@@ -120,7 +118,7 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         return super.onOptionsItemSelected(item);
     }
 
-    private void pushUser(int index, boolean pttState) {
+    private void pushUser(boolean pttState) {
         Log.d(TAG, "Send is " + pttState);
         isBusy = pttState;
         if (pttState) {
@@ -129,8 +127,8 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
             mAudioEngine.stopStreaming();
         }
 
-        if (!pttState && mReceivedSize > 0) {
-            Log.d(TAG, "Released player, can play data size " + mReceivedBuffer.length);
+        if (!pttState && mReceivedSize > 0 && !mAudioEngine.isPlaying()) {
+            Log.d(TAG, "Released player, can play data size " + mReceivedSize);
             mAudioEngine.startPlayer();
             mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
             mAudioEngine.stopPlayer();
@@ -158,8 +156,8 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
 
         System.arraycopy(data, 0, mReceivedBuffer, mReceivedSize, length);
         mReceivedSize += length;
-        if (!isBusy) {
-            Log.d(TAG, "Receiver not busy, play data " + mReceivedBuffer.length);
+        if (!isBusy && !mAudioEngine.isPlaying()) {
+            Log.d(TAG, "Receiver not busy, play data " + mReceivedSize);
             mAudioEngine.startPlayer();
             if (mReceivedBuffer.length > 0) {
                 mAudioEngine.playData(mReceivedBuffer, mReceivedSize);
@@ -167,16 +165,21 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
             mAudioEngine.stopPlayer();
             mReceivedSize = 0;
         } else {
-            Log.d(TAG, "Receiver busy, write to buffer, size is " + mReceivedBuffer.length);
+            Log.d(TAG, "Receiver busy, write to buffer, size is " + mReceivedSize);
         }
     }
 
     @Override
-    public void recordedData(byte[] array, int size) {
-        InetAddress address = NetworkEngine.getInstance().getBroadcastAddress();
+    public void recordedData(byte[] array, int  size) {
+        InetAddress address = null;
+        try {
+            address = NetworkEngine.getInstance().getBroadcastAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (address != null) {
-            Log.d(TAG, "Sending data to " + mCurrentItem.getUserAddress().getHostAddress());
+            Log.d(TAG, "Sending data size " + size);
 
             Log.d(TAG, address.getHostName());
             NetworkEngine.getInstance().sendAudioData(address, array, size);

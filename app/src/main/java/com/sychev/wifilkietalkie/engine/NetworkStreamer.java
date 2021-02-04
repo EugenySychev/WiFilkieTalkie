@@ -46,12 +46,6 @@ public class NetworkStreamer extends Thread {
         Log.d(TAG, "Send by socket " + (mTransmitterSocket != null));
         if (mTransmitterSocket != null) {
             Log.d(TAG, "Prepare data for sending");
-            InetAddress broadcast = null;
-            try {
-                broadcast = NetworkEngine.getInstance().getBroadcastAddress();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             DatagramPacket sendPacket = new DatagramPacket(data, length, to, mPort + 1);
             try {
@@ -88,7 +82,6 @@ public class NetworkStreamer extends Thread {
         Log.d(TAG, "Stream receiver started");
 
         while (mReceiverEnabled && serverSocketUDP != null) {
-            Log.d(TAG, "Received data " + receiveData.length );
             final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             try {
@@ -96,8 +89,11 @@ public class NetworkStreamer extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (mHandler != null && receivePacket.getAddress() != mLocalAddress)
+            if (mHandler != null && receivePacket.getAddress() != mLocalAddress) {
                 mHandler.receivedData(receivePacket.getAddress(), receivePacket.getData(), receivePacket.getLength());
+                Log.d(TAG, "Received data " + receivePacket.getLength());
+
+            }
         }
     }
 }

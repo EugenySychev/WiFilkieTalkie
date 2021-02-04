@@ -14,13 +14,18 @@ public class AudioEngine {
     private AudioRecord mRecorder = null;
     private AudioTrack mPlayer = null;
 
-    private static final int RECORDING_RATE = 8000;
+    private static final int RECORDING_RATE = 44100;
     private static final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
     private static final int FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(
             RECORDING_RATE, CHANNEL, FORMAT);
     private boolean mIsRecording = false;
     private DataHandler mDataHandler = null;
+    private boolean mIsPlaying;
+
+    public boolean isPlaying() {
+        return mIsPlaying;
+    }
 
     public interface DataHandler {
         void recordedData(byte[] array, int size);
@@ -80,11 +85,14 @@ public class AudioEngine {
             mRecorder = null;
     }
 
-    public void startPlayer() {
+    public void startPlayer()
+    {
+        mIsPlaying = true;
         mPlayer.play();
     }
 
     public void stopPlayer() {
+        mIsPlaying = false;
         mPlayer.stop();
     }
 
